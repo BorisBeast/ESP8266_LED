@@ -95,6 +95,7 @@ bool connectToWiFi() {
     //reset and try again, or maybe put it to deep sleep
     // ESP.reset();
     // delay(1000);
+    ticker.attach(1, toggleLed);
     return false;
   }
 

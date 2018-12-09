@@ -60,6 +60,7 @@ CHSV color(0,0,255);
 
 uint8_t power = 0;
 uint8_t brightness = 255;
+bool wifiConnected = false;
 
 void toggleLed()
 {
@@ -82,7 +83,7 @@ void configModeCallback (WiFiManager *myWiFiManager) {
   ticker.attach(0.2, toggleLed);
 }
 
-void connectToWiFi() {
+bool connectToWiFi() {
   ticker.attach(0.5, toggleLed);
   WiFiManager wifiManager;
   wifiManager.setAPCallback(configModeCallback);
@@ -92,14 +93,16 @@ void connectToWiFi() {
   if (!wifiManager.autoConnect("configESP")) {
     Serial.println("failed to connect and hit timeout");
     //reset and try again, or maybe put it to deep sleep
-    ESP.reset();
-    delay(1000);
+    // ESP.reset();
+    // delay(1000);
+    return false;
   }
 
   Serial.println("connected...yeey :)");
   ticker.detach();
 
   digitalWrite(LED_PIN, HIGH);
+  return true;
 }
 
 void otaSetup() {
@@ -222,8 +225,11 @@ void setup() {
 
   pinMode(LED_PIN, OUTPUT);
 
-  connectToWiFi();
-  otaSetup();
+  wifiConnected = connectToWiFi();
+
+  if (wifiConnected) {
+    otaSetup();
+  }
 
   EEPROM.begin(512);
   loadSettings();
@@ -249,19 +255,21 @@ void setup() {
   Serial.print( F("Vcc: ") ); Serial.println(ESP.getVcc());
   Serial.println();
 
-  if (SPIFFS.begin()) {
-    Serial.println("mounted file system");
-    Dir dir = SPIFFS.openDir("/");
-    while (dir.next()) {
-      String fileName = dir.fileName();
-      size_t fileSize = dir.fileSize();
-      Serial.printf("FS File: %s, size: %s\n", fileName.c_str(), String(fileSize).c_str());
+  if (wifiConnected) {
+    if (SPIFFS.begin()) {
+      Serial.println("mounted file system");
+      Dir dir = SPIFFS.openDir("/");
+      while (dir.next()) {
+        String fileName = dir.fileName();
+        size_t fileSize = dir.fileSize();
+        Serial.printf("FS File: %s, size: %s\n", fileName.c_str(), String(fileSize).c_str());
+      }
+      Serial.printf("\n");
+    
+      setupWebServer();
+    } else {
+      Serial.println("failed to mount FS");
     }
-    Serial.printf("\n");
-  
-    setupWebServer();
-  } else {
-    Serial.println("failed to mount FS");
   }
 
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS);
@@ -284,9 +292,11 @@ void loadSettings()
 
 
 void loop() {
-  ArduinoOTA.handle();
+  if (wifiConnected) {
+    ArduinoOTA.handle();
 
-  server.handleClient();
+    server.handleClient();
+  }
   
   // Check if the IR code has been received.
   if (irrecv.decode(&results)) {

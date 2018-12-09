@@ -1,0 +1,27 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "C:\\Users\\bjbea\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.4.1\\libraries\\ArduinoOTA",
+                "C:\\Users\\bjbea\\Documents\\Arduino\\libraries\\IRremoteESP8266\\src",
+                "C:\\Users\\bjbea\\Documents\\Arduino\\libraries\\WiFiManager",
+                "C:\\Users\\bjbea\\Documents\\Arduino\\libraries\\FastLED",
+                "C:\\Users\\bjbea\\AppData\\Local\\Arduino15\\packages\\esp8266\\tools\\**",
+                "C:\\Users\\bjbea\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.4.1\\**",
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "C:\\MinGW\\bin\\gcc.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64",
+            "forcedInclude": []
+        }
+    ],
+    "version": 4
+}
